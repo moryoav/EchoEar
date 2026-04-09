@@ -580,7 +580,14 @@ voice_assistant:
   on_listening:
     - script.execute: reset_screensaver
     - lambda: id(voice_assistant_phase) = ${voice_assist_listening_phase_id};
-    - script.execute: start_listening_on_animation
+    - lambda: |-
+        id(listening_on_playing) = true;
+        id(thinking_anim_playing) = false;
+        id(listening_on_frame) = 0;
+        id(thinking_anim_frame) = 0;
+        id(transition_anim_last_frame_ms) = millis();
+        id(casita_listening_on_anim).set_frame(0);
+        id(casita_thinking_anim).set_frame(0);
     - text_sensor.template.publish:
         id: text_request_full
         state: "..."
@@ -596,7 +603,13 @@ voice_assistant:
     - script.execute: draw_display
 
   on_stt_vad_end:
-    - lambda: id(voice_assistant_phase) = ${voice_assist_thinking_phase_id};
+    - lambda: |-
+        id(voice_assistant_phase) = ${voice_assist_thinking_phase_id};
+        id(listening_on_playing) = false;
+        id(thinking_anim_playing) = true;
+        id(thinking_anim_frame) = 0;
+        id(transition_anim_last_frame_ms) = millis();
+        id(casita_thinking_anim).set_frame(0);
     - script.execute: draw_display
 
   on_stt_end:
@@ -616,7 +629,15 @@ voice_assistant:
     - text_sensor.template.publish:
         id: text_response_full
         state: !lambda return x;
-    - lambda: id(voice_assistant_phase) = ${voice_assist_replying_phase_id};
+    - lambda: |-
+        id(voice_assistant_phase) = ${voice_assist_replying_phase_id};
+        id(replying_on_playing) = true;
+        id(replying_off_playing) = false;
+        id(replying_on_frame) = 0;
+        id(replying_off_frame) = 0;
+        id(replying_anim_last_frame_ms) = millis();
+        id(casita_replying_on_anim).set_frame(0);
+        id(casita_replying_off_anim).set_frame(0);
     - lambda: 'id(playing_internal_sound) = true;'
     - script.execute: draw_display
 
@@ -642,9 +663,15 @@ voice_assistant:
           - micro_wake_word.start:
     - if:
         condition:
-          lambda: return id(voice_assistant_phase) == ${voice_assist_listening_phase_id};
+          lambda: return id(voice_assistant_phase) == ${voice_assist_replying_phase_id};
         then:
-          - script.execute: start_listening_off_animation          
+          - lambda: |-
+              id(replying_on_playing) = false;
+              id(replying_off_playing) = true;
+              id(replying_on_frame) = 0;
+              id(replying_off_frame) = 0;
+              id(replying_anim_last_frame_ms) = millis();
+              id(casita_replying_off_anim).set_frame(0);          
     - script.execute: set_idle_or_mute_phase
     - script.execute: draw_display
     - text_sensor.template.publish:
@@ -806,48 +833,92 @@ interval:
     then:
       - lambda: |-
           const uint32_t now = millis();
-          const uint32_t on_frame_interval_ms = 20;
-          const uint32_t off_frame_interval_ms = 20;
+          const uint32_t listening_frame_interval_ms = 20;
+          const uint32_t thinking_frame_interval_ms = 20;
 
           if (id(listening_on_playing)) {
-            if ((int32_t)(now - id(listening_anim_last_frame_ms)) < on_frame_interval_ms) {
+            if ((int32_t)(now - id(transition_anim_last_frame_ms)) < listening_frame_interval_ms) {
               return;
             }
 
-            id(listening_anim_last_frame_ms) = now;
+            id(transition_anim_last_frame_ms) = now;
             id(listening_on_frame) += 1;
 
-            if (id(listening_on_frame) < 6) {
+            if (id(listening_on_frame) < 8) {
               id(casita_listening_on_anim).set_frame(id(listening_on_frame));
               id(main_display).update();
             } else {
               id(listening_on_playing) = false;
-              id(listening_on_frame) = 5;  // hold last frame while listening
-              id(casita_listening_on_anim).set_frame(5);
+              id(listening_on_frame) = 7;  // hold last frame while still listening
+              id(casita_listening_on_anim).set_frame(7);
               id(main_display).update();
             }
             return;
           }
 
-          if (id(listening_off_playing)) {
-            if ((int32_t)(now - id(listening_anim_last_frame_ms)) < off_frame_interval_ms) {
+          if (id(thinking_anim_playing)) {
+            if ((int32_t)(now - id(transition_anim_last_frame_ms)) < thinking_frame_interval_ms) {
               return;
             }
 
-            id(listening_anim_last_frame_ms) = now;
-            id(listening_off_frame) += 1;
+            id(transition_anim_last_frame_ms) = now;
+            id(thinking_anim_frame) += 1;
 
-            if (id(listening_off_frame) < 7) {
-              id(casita_listening_off_anim).set_frame(id(listening_off_frame));
+            if (id(thinking_anim_frame) < 18) {
+              id(casita_thinking_anim).set_frame(id(thinking_anim_frame));
               id(main_display).update();
             } else {
-              id(listening_off_playing) = false;
-              id(listening_off_frame) = 0;
-              id(casita_listening_off_anim).set_frame(0);
-              id(draw_display).execute();
+              id(thinking_anim_playing) = false;
+              id(thinking_anim_frame) = 17;  // hold last frame while still thinking
+              id(casita_thinking_anim).set_frame(17);
+              id(main_display).update();
             }
           }
-          
+  - interval: 5ms
+    then:
+      - lambda: |-
+          const uint32_t now = millis();
+          const uint32_t replying_on_frame_interval_ms = 20;
+          const uint32_t replying_off_frame_interval_ms = 20;
+
+          if (id(replying_on_playing)) {
+            if ((int32_t)(now - id(replying_anim_last_frame_ms)) < replying_on_frame_interval_ms) {
+              return;
+            }
+
+            id(replying_anim_last_frame_ms) = now;
+            id(replying_on_frame) += 1;
+
+            if (id(replying_on_frame) < 6) {
+              id(casita_replying_on_anim).set_frame(id(replying_on_frame));
+              id(main_display).update();
+            } else {
+              id(replying_on_playing) = false;
+              id(replying_on_frame) = 5;  // hold last frame while still replying
+              id(casita_replying_on_anim).set_frame(5);
+              id(main_display).update();
+            }
+            return;
+          }
+
+          if (id(replying_off_playing)) {
+            if ((int32_t)(now - id(replying_anim_last_frame_ms)) < replying_off_frame_interval_ms) {
+              return;
+            }
+
+            id(replying_anim_last_frame_ms) = now;
+            id(replying_off_frame) += 1;
+
+            if (id(replying_off_frame) < 7) {
+              id(casita_replying_off_anim).set_frame(id(replying_off_frame));
+              id(main_display).update();
+            } else {
+              id(replying_off_playing) = false;
+              id(replying_off_frame) = 0;
+              id(casita_replying_off_anim).set_frame(0);
+              id(draw_display).execute();
+            }
+          }          
   - interval: 60s        # safe poll rate for the BQ27220
     then:
       - lambda: |-
@@ -900,8 +971,8 @@ script:
                               id(show_clock_page).execute();
                               return;
                             }
-                            if (id(listening_off_playing)) {
-                              id(main_display).show_page(listening_page);
+                            if (id(replying_off_playing)) {
+                              id(main_display).show_page(replying_page);
                               id(main_display).update();
                               return;
                             }                            
@@ -1243,27 +1314,6 @@ script:
           id(show_clock) = false;
           id(idle_seconds) = 0;
 
-  - id: start_listening_on_animation
-    then:
-      - lambda: |-
-          id(listening_on_playing) = true;
-          id(listening_off_playing) = false;
-          id(listening_on_frame) = 0;
-          id(listening_off_frame) = 0;
-          id(listening_anim_last_frame_ms) = millis();
-          id(casita_listening_on_anim).set_frame(0);
-          id(casita_listening_off_anim).set_frame(0);
-
-  - id: start_listening_off_animation
-    then:
-      - lambda: |-
-          id(listening_on_playing) = false;
-          id(listening_off_playing) = true;
-          id(listening_on_frame) = 0;
-          id(listening_off_frame) = 0;
-          id(listening_anim_last_frame_ms) = millis();
-          id(casita_listening_off_anim).set_frame(0);
-          
   - id: handle_screen_tap
     then:
       - script.execute: reset_screensaver
@@ -1717,12 +1767,12 @@ globals:
     restore_value: no
     initial_value: "false"
 
-  - id: listening_off_playing
+  - id: thinking_anim_playing
     type: bool
     restore_value: no
     initial_value: "false"
 
-  - id: listening_anim_last_frame_ms
+  - id: transition_anim_last_frame_ms
     type: uint32_t
     restore_value: no
     initial_value: "0"
@@ -1732,7 +1782,32 @@ globals:
     restore_value: no
     initial_value: "0"
 
-  - id: listening_off_frame
+  - id: thinking_anim_frame
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: replying_on_playing
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: replying_off_playing
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: replying_anim_last_frame_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: "0"
+
+  - id: replying_on_frame
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: replying_off_frame
     type: int
     restore_value: no
     initial_value: "0"
@@ -1817,9 +1892,16 @@ animation:
     id: casita_listening_on_anim
     type: RGB565
 
-  - file: "listening_off.gif"
-    id: casita_listening_off_anim
+  - file: "thinking.gif"
+    id: casita_thinking_anim
     type: RGB565
+  - file: "replying_on.gif"
+    id: casita_replying_on_anim
+    type: RGB565
+
+  - file: "replying_off.gif"
+    id: casita_replying_off_anim
+    type: RGB565    
 font:
   - file:
       type: gfonts
@@ -2253,18 +2335,14 @@ display:
       - id: listening_page
         lambda: |-
           it.fill(id(listening_color));
-          if (id(listening_off_playing)) {
-            it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_listening_off_anim), ImageAlign::CENTER);
-          } else {
-            it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_listening_on_anim), ImageAlign::CENTER);
-          }
+          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_listening_on_anim), ImageAlign::CENTER);
           id(draw_timer_timeline).execute();
       - id: thinking_page
         lambda: |-
           it.fill(id(thinking_color));
           const int W = it.get_width();
           const int H = it.get_height();
-          it.image(W / 2, H / 2, id(casita_thinking), ImageAlign::CENTER);
+          it.image(W / 2, H / 2, id(casita_thinking_anim), ImageAlign::CENTER);
 
           if (id(show_text).state) {
             const int box_h = 30;
@@ -2285,7 +2363,11 @@ display:
           it.fill(id(replying_color));
           const int W = it.get_width();
           const int H = it.get_height();
-          it.image(W / 2, H / 2, id(casita_replying), ImageAlign::CENTER);
+          if (id(replying_off_playing)) {
+            it.image(W / 2, H / 2, id(casita_replying_off_anim), ImageAlign::CENTER);
+          } else {
+            it.image(W / 2, H / 2, id(casita_replying_on_anim), ImageAlign::CENTER);
+          }
 
           if (id(show_text).state) {
             const int box_h = 30;
