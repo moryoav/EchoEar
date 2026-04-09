@@ -774,7 +774,8 @@ interval:
               && !id(mute).state;
 
           const uint32_t now = millis();
-          const int frame_count = 12;
+          const int full_blink_frame_count = 13;
+          const int half_blink_frame_count = 8;
           const uint32_t frame_interval_ms = 5;
 
           auto schedule_next_blink = [&]() {
@@ -786,6 +787,7 @@ interval:
               id(idle_blink_playing) = false;
               blink_frame = 0;
               id(casita_idle_blink).set_frame(0);
+              id(casita_idle_half_blink).set_frame(0);
               id(main_display).update();
             }
 
@@ -803,9 +805,14 @@ interval:
           if (!id(idle_blink_playing)) {
             if ((int32_t)(now - next_blink_ms) >= 0) {
               id(idle_blink_playing) = true;
+              id(idle_blink_use_half) = (esp_random() % 100) < 30;  // 30% half blink, 70% full blink
               blink_frame = 0;
               last_frame_ms = now;
-              id(casita_idle_blink).set_frame(0);
+              if (id(idle_blink_use_half)) {
+                id(casita_idle_half_blink).set_frame(0);
+              } else {
+                id(casita_idle_blink).set_frame(0);
+              }
               id(main_display).update();
             }
             return;
@@ -817,14 +824,20 @@ interval:
 
           last_frame_ms = now;
           blink_frame += 1;
+          const int frame_count = id(idle_blink_use_half) ? half_blink_frame_count : full_blink_frame_count;
 
           if (blink_frame < frame_count) {
-            id(casita_idle_blink).set_frame(blink_frame);
+            if (id(idle_blink_use_half)) {
+              id(casita_idle_half_blink).set_frame(blink_frame);
+            } else {
+              id(casita_idle_blink).set_frame(blink_frame);
+            }
             id(main_display).update();
           } else {
             id(idle_blink_playing) = false;
             blink_frame = 0;
             id(casita_idle_blink).set_frame(0);
+            id(casita_idle_half_blink).set_frame(0);
             schedule_next_blink();
             id(main_display).update();
           }
@@ -1762,6 +1775,11 @@ globals:
     restore_value: no
     initial_value: "false"
 
+  - id: idle_blink_use_half
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
   - id: listening_on_playing
     type: bool
     restore_value: no
@@ -1884,16 +1902,25 @@ image:
     type: RGB565
 
 animation:
-  - file: "idle_blink.gif"
+  - file: "EchoEar/blinking.gif"
     id: casita_idle_blink
     type: RGB565
+
+  - file: "EchoEar/half_blink.gif"
+    id: casita_idle_half_blink
+    type: RGB565
     
-  - file: "listening_on.gif"
+  - file: "EchoEar/listening_on.gif"
     id: casita_listening_on_anim
     type: RGB565
 
+<<<<<<< HEAD
   - file: "thinking.gif"
     id: casita_thinking_anim
+=======
+  - file: "EchoEar/listening_off.gif"
+    id: casita_listening_off_anim
+>>>>>>> 30fdda0efb17ce665a1ff130e5a7d720c03c993a
     type: RGB565
   - file: "replying_on.gif"
     id: casita_replying_on_anim
@@ -2273,7 +2300,11 @@ display:
           it.fill(id(idle_color));
           it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_idle), ImageAlign::CENTER);
           if (id(idle_blink_playing)) {
-            it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_idle_blink), ImageAlign::CENTER);
+            if (id(idle_blink_use_half)) {
+              it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_idle_half_blink), ImageAlign::CENTER);
+            } else {
+              it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_idle_blink), ImageAlign::CENTER);
+            }
           }
           id(draw_active_timer_widget).execute();
           id(draw_timer_timeline).execute();
