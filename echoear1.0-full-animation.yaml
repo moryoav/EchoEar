@@ -1809,15 +1809,15 @@ image:
     type: RGB565
 
 animation:
-  - file: "idle_blink.gif"
+  - file: "EchoEar/idle_blink.gif"
     id: casita_idle_blink
     type: RGB565
     
-  - file: "listening_on.gif"
+  - file: "EchoEar/listening_on.gif"
     id: casita_listening_on_anim
     type: RGB565
 
-  - file: "listening_off.gif"
+  - file: "EchoEar/listening_off.gif"
     id: casita_listening_off_anim
     type: RGB565
 font:
