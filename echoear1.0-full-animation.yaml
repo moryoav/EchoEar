@@ -857,13 +857,13 @@ interval:
             id(transition_anim_last_frame_ms) = now;
             id(listening_on_frame) += 1;
 
-            if (id(listening_on_frame) < 20) {
+            if (id(listening_on_frame) < 11) {
               id(casita_listening_on_anim).set_frame(id(listening_on_frame));
               id(main_display).update();
             } else {
               id(listening_on_playing) = false;
-              id(listening_on_frame) = 19;  // hold last frame while still listening
-              id(casita_listening_on_anim).set_frame(19);
+              id(listening_on_frame) = 10;  // hold last frame while still listening
+              id(casita_listening_on_anim).set_frame(10);
               id(main_display).update();
             }
             return;
@@ -877,13 +877,13 @@ interval:
             id(transition_anim_last_frame_ms) = now;
             id(thinking_anim_frame) += 1;
 
-            if (id(thinking_anim_frame) < 18) {
+            if (id(thinking_anim_frame) < 19) {
               id(casita_thinking_anim).set_frame(id(thinking_anim_frame));
               id(main_display).update();
             } else {
               id(thinking_anim_playing) = false;
-              id(thinking_anim_frame) = 17;  // hold last frame while still thinking
-              id(casita_thinking_anim).set_frame(17);
+              id(thinking_anim_frame) = 18;  // hold last frame while still thinking
+              id(casita_thinking_anim).set_frame(18);
               id(main_display).update();
             }
           }
@@ -902,13 +902,13 @@ interval:
             id(replying_anim_last_frame_ms) = now;
             id(replying_on_frame) += 1;
 
-            if (id(replying_on_frame) < 6) {
+            if (id(replying_on_frame) < 8) {
               id(casita_replying_on_anim).set_frame(id(replying_on_frame));
               id(main_display).update();
             } else {
               id(replying_on_playing) = false;
-              id(replying_on_frame) = 5;  // hold last frame while still replying
-              id(casita_replying_on_anim).set_frame(5);
+              id(replying_on_frame) = 7;  // hold last frame while still replying
+              id(casita_replying_on_anim).set_frame(7);
               id(main_display).update();
             }
             return;
@@ -922,7 +922,7 @@ interval:
             id(replying_anim_last_frame_ms) = now;
             id(replying_off_frame) += 1;
 
-            if (id(replying_off_frame) < 7) {
+            if (id(replying_off_frame) < 10) {
               id(casita_replying_off_anim).set_frame(id(replying_off_frame));
               id(main_display).update();
             } else {
@@ -1910,23 +1910,23 @@ animation:
     id: casita_idle_half_blink
     type: RGB565
     
-  - file: "EchoEar/half_wink_left.gif"
+  - file: "EchoEar/half_wink_left_on.gif"
     id: casita_listening_on_anim
     type: RGB565
 
-  - file: "thinking.gif"
+  - file: "EchoEar/rotating_left.gif"
     id: casita_thinking_anim
     type: RGB565
     
-  - file: "listening_off.gif"
+  - file: "EchoEar/half_wink_left_off.gif"
     id: casita_listening_off_anim
     type: RGB565
     
-  - file: "replying_on.gif"
+  - file: "EchoEar/happy_on.gif"
     id: casita_replying_on_anim
     type: RGB565
 
-  - file: "replying_off.gif"
+  - file: "EchoEar/happy_off.gif"
     id: casita_replying_off_anim
     type: RGB565    
 font:
