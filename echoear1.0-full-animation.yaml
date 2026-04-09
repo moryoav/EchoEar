@@ -857,13 +857,13 @@ interval:
             id(transition_anim_last_frame_ms) = now;
             id(listening_on_frame) += 1;
 
-            if (id(listening_on_frame) < 8) {
+            if (id(listening_on_frame) < 20) {
               id(casita_listening_on_anim).set_frame(id(listening_on_frame));
               id(main_display).update();
             } else {
               id(listening_on_playing) = false;
-              id(listening_on_frame) = 7;  // hold last frame while still listening
-              id(casita_listening_on_anim).set_frame(7);
+              id(listening_on_frame) = 19;  // hold last frame while still listening
+              id(casita_listening_on_anim).set_frame(19);
               id(main_display).update();
             }
             return;
@@ -1910,7 +1910,7 @@ animation:
     id: casita_idle_half_blink
     type: RGB565
     
-  - file: "listening_on.gif"
+  - file: "EchoEar/half_wink_left.gif"
     id: casita_listening_on_anim
     type: RGB565
 
