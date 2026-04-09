@@ -1910,18 +1910,18 @@ animation:
     id: casita_idle_half_blink
     type: RGB565
     
-  - file: "EchoEar/listening_on.gif"
+  - file: "listening_on.gif"
     id: casita_listening_on_anim
     type: RGB565
 
-<<<<<<< HEAD
   - file: "thinking.gif"
     id: casita_thinking_anim
-=======
-  - file: "EchoEar/listening_off.gif"
-    id: casita_listening_off_anim
->>>>>>> 30fdda0efb17ce665a1ff130e5a7d720c03c993a
     type: RGB565
+    
+  - file: "listening_off.gif"
+    id: casita_listening_off_anim
+    type: RGB565
+    
   - file: "replying_on.gif"
     id: casita_replying_on_anim
     type: RGB565
