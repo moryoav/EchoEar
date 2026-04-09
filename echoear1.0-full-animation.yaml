@@ -687,6 +687,9 @@ voice_assistant:
           lambda: return !id(init_in_progress);
         then:
           - lambda: id(voice_assistant_phase) = ${voice_assist_error_phase_id};
+          - lambda: |-
+              id(error_anim_frame) = 0;
+              id(casita_error_anim).set_frame(0);
           - script.execute: draw_display
           - delay: 1s
           - if:
@@ -707,6 +710,9 @@ voice_assistant:
   on_client_disconnected:
     - script.execute: stop_wake_word
     - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
+    - lambda: |-
+        id(loading_anim_frame) = 0;
+        id(casita_initializing_anim).set_frame(0);
     - script.execute: draw_display
 
   on_timer_started:
@@ -848,6 +854,7 @@ interval:
           const uint32_t now = millis();
           const uint32_t listening_frame_interval_ms = 20;
           const uint32_t thinking_frame_interval_ms = 20;
+          const uint32_t status_frame_interval_ms = 20;
 
           if (id(listening_on_playing)) {
             if ((int32_t)(now - id(transition_anim_last_frame_ms)) < listening_frame_interval_ms) {
@@ -877,15 +884,39 @@ interval:
             id(transition_anim_last_frame_ms) = now;
             id(thinking_anim_frame) += 1;
 
-            if (id(thinking_anim_frame) < 18) {
+            if (id(thinking_anim_frame) < 19) {
               id(casita_thinking_anim).set_frame(id(thinking_anim_frame));
               id(main_display).update();
             } else {
               id(thinking_anim_playing) = false;
-              id(thinking_anim_frame) = 17;  // hold last frame while still thinking
-              id(casita_thinking_anim).set_frame(17);
+              id(thinking_anim_frame) = 18;  // hold last frame while still thinking
+              id(casita_thinking_anim).set_frame(18);
               id(main_display).update();
             }
+            return;
+          }
+
+          if (id(voice_assistant_phase) == ${voice_assist_not_ready_phase_id}) {
+            if ((int32_t)(now - id(status_anim_last_frame_ms)) < status_frame_interval_ms) {
+              return;
+            }
+
+            id(status_anim_last_frame_ms) = now;
+            id(loading_anim_frame) = (id(loading_anim_frame) + 1) % 45;
+            id(casita_initializing_anim).set_frame(id(loading_anim_frame));
+            id(main_display).update();
+            return;
+          }
+
+          if (id(voice_assistant_phase) == ${voice_assist_error_phase_id}) {
+            if ((int32_t)(now - id(status_anim_last_frame_ms)) < status_frame_interval_ms) {
+              return;
+            }
+
+            id(status_anim_last_frame_ms) = now;
+            id(error_anim_frame) = (id(error_anim_frame) + 1) % 30;
+            id(casita_error_anim).set_frame(id(error_anim_frame));
+            id(main_display).update();
           }
   - interval: 5ms
     then:
@@ -1795,12 +1826,27 @@ globals:
     restore_value: no
     initial_value: "0"
 
+  - id: status_anim_last_frame_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: "0"
+
   - id: listening_on_frame
     type: int
     restore_value: no
     initial_value: "0"
 
   - id: thinking_anim_frame
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: loading_anim_frame
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: error_anim_frame
     type: int
     restore_value: no
     initial_value: "0"
@@ -1856,10 +1902,6 @@ globals:
     initial_value: "0"
 
 image:
-  - file: ${error_illustration_file}
-    id: casita_error
-    resize: ${imagewidth}x${imageheight}
-    type: RGB565
   - file: "idle.png"
     id: casita_idle
     resize: ${imagewidth}x${imageheight}
@@ -1880,10 +1922,6 @@ image:
     id: casita_timer_finished
     resize: ${imagewidth}x${imageheight}
     type: RGB565
-  - file: ${loading_illustration_file}
-    id: casita_initializing
-    resize: ${imagewidth}x${imageheight}
-    type: RGB565
   - file: ${mute_illustration_file}
     id: casita_muted
     resize: ${imagewidth}x${imageheight}
@@ -1902,6 +1940,14 @@ image:
     type: RGB565
 
 animation:
+  - file: "EchoEar/angry.gif"
+    id: casita_error_anim
+    type: RGB565
+
+  - file: "EchoEar/snooping.gif"
+    id: casita_initializing_anim
+    type: RGB565
+
   - file: "EchoEar/blinking.gif"
     id: casita_idle_blink
     type: RGB565
@@ -1914,7 +1960,7 @@ animation:
     id: casita_listening_on_anim
     type: RGB565
 
-  - file: "thinking.gif"
+  - file: "EchoEar/rotating_left.gif"
     id: casita_thinking_anim
     type: RGB565
     
@@ -2421,7 +2467,7 @@ display:
       - id: error_page
         lambda: |-
           it.fill(id(error_color));
-          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_error), ImageAlign::CENTER);
+          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_error_anim), ImageAlign::CENTER);
       - id: no_ha_page
         lambda: |-
           it.image((it.get_width() / 2), (it.get_height() / 2), id(error_no_ha), ImageAlign::CENTER);
@@ -2431,7 +2477,7 @@ display:
       - id: initializing_page
         lambda: |-
           it.fill(id(loading_color));
-          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_initializing), ImageAlign::CENTER);
+          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_initializing_anim), ImageAlign::CENTER);
       - id: muted_page
         lambda: |-
           it.fill(Color::BLACK);
