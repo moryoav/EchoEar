@@ -1940,39 +1940,39 @@ image:
     type: RGB565
 
 animation:
-  - file: "EchoEar/angry.gif"
+  - file: "gifs/angry.gif"
     id: casita_error_anim
     type: RGB565
 
-  - file: "EchoEar/snooping.gif"
+  - file: "gifs/snooping.gif"
     id: casita_initializing_anim
     type: RGB565
 
-  - file: "EchoEar/blinking.gif"
+  - file: "gifs/blinking.gif"
     id: casita_idle_blink
     type: RGB565
 
-  - file: "EchoEar/half_blink.gif"
+  - file: "gifs/half_blink.gif"
     id: casita_idle_half_blink
     type: RGB565
     
-  - file: "EchoEar/half_wink_left_on.gif"
+  - file: "gifs/half_wink_left_on.gif"
     id: casita_listening_on_anim
     type: RGB565
 
-  - file: "EchoEar/rotating_left.gif"
+  - file: "gifs/rotating_left.gif"
     id: casita_thinking_anim
     type: RGB565
     
-  - file: "EchoEar/half_wink_left_off.gif"
+  - file: "gifs/half_wink_left_off.gif"
     id: casita_listening_off_anim
     type: RGB565
     
-  - file: "EchoEar/happy_on.gif"
+  - file: "gifs/happy_on.gif"
     id: casita_replying_on_anim
     type: RGB565
 
-  - file: "EchoEar/happy_off.gif"
+  - file: "gifs/happy_off.gif"
     id: casita_replying_off_anim
     type: RGB565    
 font:
