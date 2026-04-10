@@ -912,7 +912,7 @@ interval:
             }
 
             id(status_anim_last_frame_ms) = now;
-            id(error_anim_frame) = (id(error_anim_frame) + 1) % 30;
+            id(error_anim_frame) = (id(error_anim_frame) + 1) % 29;
             id(casita_error_anim).set_frame(id(error_anim_frame));
             id(main_display).update();
           }
@@ -931,13 +931,13 @@ interval:
             id(replying_anim_last_frame_ms) = now;
             id(replying_on_frame) += 1;
 
-            if (id(replying_on_frame) < 8) {
+            if (id(replying_on_frame) < 7) {
               id(casita_replying_on_anim).set_frame(id(replying_on_frame));
               id(main_display).update();
             } else {
               id(replying_on_playing) = false;
-              id(replying_on_frame) = 7;  // hold last frame while still replying
-              id(casita_replying_on_anim).set_frame(7);
+              id(replying_on_frame) = 6;  // hold last frame while still replying
+              id(casita_replying_on_anim).set_frame(6);
               id(main_display).update();
             }
             return;
@@ -951,7 +951,7 @@ interval:
             id(replying_anim_last_frame_ms) = now;
             id(replying_off_frame) += 1;
 
-            if (id(replying_off_frame) < 10) {
+            if (id(replying_off_frame) < 9) {
               id(casita_replying_off_anim).set_frame(id(replying_off_frame));
               id(main_display).update();
             } else {
