@@ -57,7 +57,7 @@ substitutions:
   idle_blink_animation_file: "gifs/blinking.gif"
   idle_half_blink_animation_file: "gifs/half_blink.gif"
   listening_on_animation_file: "gifs/half_wink_left_on.gif"
-  thinking_animation_file: "gifs/rotating_left.gif"
+  thinking_animation_file: "gifs/snooping.gif"
   listening_off_animation_file: "gifs/half_wink_left_off.gif"
   replying_on_animation_file: "gifs/happy_on.gif"
   replying_off_animation_file: "gifs/happy_off.gif"
@@ -884,13 +884,13 @@ interval:
             id(transition_anim_last_frame_ms) = now;
             id(thinking_anim_frame) += 1;
 
-            if (id(thinking_anim_frame) < 19) {
+            if (id(thinking_anim_frame) < 43) {
               id(casita_thinking_anim).set_frame(id(thinking_anim_frame));
               id(main_display).update();
             } else {
               id(thinking_anim_playing) = false;
-              id(thinking_anim_frame) = 18;  // hold last frame while still thinking
-              id(casita_thinking_anim).set_frame(18);
+              id(thinking_anim_frame) = 42;  // hold last frame while still thinking
+              id(casita_thinking_anim).set_frame(42);
               id(main_display).update();
             }
             return;
