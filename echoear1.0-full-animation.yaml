@@ -710,9 +710,6 @@ voice_assistant:
   on_client_disconnected:
     - script.execute: stop_wake_word
     - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
-    - lambda: |-
-        id(loading_anim_frame) = 0;
-        id(casita_initializing_anim).set_frame(0);
     - script.execute: draw_display
 
   on_timer_started:
@@ -902,8 +899,6 @@ interval:
             }
 
             id(status_anim_last_frame_ms) = now;
-            id(loading_anim_frame) = (id(loading_anim_frame) + 1) % 45;
-            id(casita_initializing_anim).set_frame(id(loading_anim_frame));
             id(main_display).update();
             return;
           }
@@ -1906,6 +1901,10 @@ image:
     id: casita_idle
     resize: ${imagewidth}x${imageheight}
     type: RGB565
+  - file: ${loading_illustration_file}
+    id: casita_initializing
+    resize: ${imagewidth}x${imageheight}
+    type: RGB565
   - file: ${listening_illustration_file}
     id: casita_listening
     resize: ${imagewidth}x${imageheight}
@@ -1942,10 +1941,6 @@ image:
 animation:
   - file: "gifs/angry.gif"
     id: casita_error_anim
-    type: RGB565
-
-  - file: "gifs/snooping.gif"
-    id: casita_initializing_anim
     type: RGB565
 
   - file: "gifs/blinking.gif"
@@ -2477,7 +2472,7 @@ display:
       - id: initializing_page
         lambda: |-
           it.fill(id(loading_color));
-          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_initializing_anim), ImageAlign::CENTER);
+          it.image((it.get_width() / 2), (it.get_height() / 2), id(casita_initializing), ImageAlign::CENTER);
       - id: muted_page
         lambda: |-
           it.fill(Color::BLACK);
