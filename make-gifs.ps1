@@ -5,7 +5,7 @@ $framerate  = 12
 
 # Leave empty "" to keep PNGs as-is
 # Example: "crop=360:120:0:41"
-$extraFilter = "crop=320:120:20:41"
+$extraFilter = "crop=280:120:40:41"
 
 if (!(Test-Path $sourceRoot)) {
     Write-Error "Source folder not found: $sourceRoot"
