@@ -64,6 +64,8 @@ echo STEP 2: Flashing firmware.factory.bin to %PORT%
 echo =========================================
 echo.
 
+pause
+
 "%PYTHON%" -m esptool --port %PORT% write_flash 0x0 "%FACTORY_BIN%"
 if errorlevel 1 (
   echo.

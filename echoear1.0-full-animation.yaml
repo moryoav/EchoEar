@@ -97,6 +97,7 @@ esp32:
       CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
 
 esphome:
+  compile_process_limit: 4
   name: ${name}
   friendly_name: ${friendly_name}
   min_version: 2025.9.0
