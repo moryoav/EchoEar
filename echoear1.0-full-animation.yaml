@@ -125,7 +125,7 @@ ota:
     id: ota_esphome
 
 logger:
-  level: DEBUG
+  level: WARN
 #  hardware_uart: USB_SERIAL_JTAG
 
 wifi:
@@ -578,8 +578,8 @@ voice_assistant:
   media_player: external_media_player
   micro_wake_word: mww
   noise_suppression_level: 2
-  auto_gain: 31dBFS
-  volume_multiplier: 2.0
+  auto_gain: 20dBFS
+  volume_multiplier: 1.0
 
   on_listening:
     - script.execute: reset_screensaver
@@ -767,7 +767,7 @@ interval:
           then:
             - component.update: main_display
 
-  - interval: 5ms
+  - interval: 20ms
     then:
       - lambda: |-
           static uint32_t next_blink_ms = 0;
@@ -849,7 +849,7 @@ interval:
             id(main_display).update();
           }
 
-  - interval: 5ms
+  - interval: 20ms
     then:
       - lambda: |-
           const uint32_t now = millis();
@@ -917,7 +917,7 @@ interval:
             id(casita_error_anim).set_frame(id(error_anim_frame));
             id(main_display).update();
           }
-  - interval: 5ms
+  - interval: 20ms
     then:
       - lambda: |-
           const uint32_t now = millis();
@@ -2322,6 +2322,7 @@ display:
     cs_pin: 14
     reset_pin: 3
     data_rate: 40MHz
+    color_order: rgb
     rotation: ${rotate_display}
     update_interval: never
     dimensions:
